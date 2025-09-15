@@ -1,16 +1,16 @@
 {{- if .is_worker }}
 # K3s agent configuration for worker nodes
 token: {{ env "K3S_TOKEN" | default "your-cluster-token-change-me" }}
-server: https://{{ .network.virtual_ip }}:6443
+server: https://{{ .data.network.virtual_ip }}:6443
 
 # Node configuration
-node-ip: {{ .node_ip }}
-node-external-ip: {{ .node_ip }}
+node-ip: {{ .data.node_ip }}
+node-external-ip: {{ .data.node_ip }}
 
 # Kubelet configuration
 kubelet-arg:
-  - "node-ip={{ .node_ip }}"
-  - "cluster-dns={{ .k3s.cluster_dns }}"
+  - "node-ip={{ .data.node_ip }}"
+  - "cluster-dns={{ .data.k3s.cluster_dns }}"
   - "max-pods=250"
 
 # Node labels

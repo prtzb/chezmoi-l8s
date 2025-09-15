@@ -4,27 +4,27 @@ token: {{ env "K3S_TOKEN" | default "your-cluster-token-change-me" }}
 {{- if .is_bootstrap }}
 cluster-init: true
 {{- else }}
-server: https://{{ .network.virtual_ip }}:6443
+server: https://{{ .data.network.virtual_ip }}:6443
 {{- end }}
 
 # Network configuration
-cluster-cidr: {{ .k3s.cluster_cidr }}
-service-cidr: {{ .k3s.service_cidr }}
-cluster-dns: {{ .k3s.cluster_dns }}
+cluster-cidr: {{ .data.k3s.cluster_cidr }}
+service-cidr: {{ .data.k3s.service_cidr }}
+cluster-dns: {{ .data.k3s.cluster_dns }}
 
 # Node configuration
-node-ip: {{ .node_ip }}
-node-external-ip: {{ .node_ip }}
-advertise-address: {{ .node_ip }}
-bind-address: {{ .node_ip }}
+node-ip: {{ .data.node_ip }}
+node-external-ip: {{ .data.node_ip }}
+advertise-address: {{ .data.node_ip }}
+bind-address: {{ .data.node_ip }}
 
 # TLS configuration
 tls-san:
-  - {{ .network.virtual_ip }}
+  - {{ .data.network.virtual_ip }}
   - k3s-api
   - k3s-cluster
-  - {{ .node_ip }}
-  - {{ .hostname }}
+  - {{ .data.node_ip }}
+  - {{ .data.hostname }}
 
 # Disable components (we'll use external)
 disable:
@@ -41,12 +41,12 @@ datastore-endpoint: "etcd"
 
 # Kubelet configuration
 kubelet-arg:
-  - "node-ip={{ .node_ip }}"
-  - "cluster-dns={{ .k3s.cluster_dns }}"
+  - "node-ip={{ .data.node_ip }}"
+  - "cluster-dns={{ .data.k3s.cluster_dns }}"
 
 # API server configuration
 kube-apiserver-arg:
-  - "advertise-address={{ .node_ip }}"
+  - "advertise-address={{ .data.node_ip }}"
   - "bind-address=0.0.0.0"
 
 # Controller manager configuration

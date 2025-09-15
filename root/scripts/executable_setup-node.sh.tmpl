@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# Node setup script for {{ .hostname }}
-echo "🔧 Setting up {{ .hostname }} for K3s cluster..."
+# Node setup script for {{ .data.hostname }}
+echo "🔧 Setting up {{ .data.hostname }} for K3s cluster..."
 
 # Update system
 echo "📦 Updating system packages..."
@@ -43,7 +43,7 @@ sudo netplan apply
 
 # Set hostname
 echo "🏷️ Setting hostname..."
-sudo hostnamectl set-hostname {{ .hostname }}
+sudo hostnamectl set-hostname {{ .data.hostname }}
 
 # Configure firewall rules (if ufw is enabled)
 if sudo ufw status | grep -q "Status: active"; then
@@ -73,7 +73,7 @@ if sudo ufw status | grep -q "Status: active"; then
     sudo ufw allow from 10.0.1.0/24
 fi
 
-echo "✅ Node {{ .hostname }} setup completed!"
+echo "✅ Node {{ .data.hostname }} setup completed!"
 echo ""
 echo "🚀 Next steps:"
 {{- if .is_bootstrap }}
