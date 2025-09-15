@@ -1,0 +1,27 @@
+{{- if .is_worker }}
+# K3s agent configuration for worker nodes
+token: {{ env "K3S_TOKEN" | default "your-cluster-token-change-me" }}
+server: https://{{ .network.virtual_ip }}:6443
+
+# Node configuration
+node-ip: {{ .node_ip }}
+node-external-ip: {{ .node_ip }}
+
+# Kubelet configuration
+kubelet-arg:
+  - "node-ip={{ .node_ip }}"
+  - "cluster-dns={{ .k3s.cluster_dns }}"
+  - "max-pods=250"
+
+# Node labels
+node-label:
+  - "node.kubernetes.io/instance-type=raspberry-pi-5"
+  - "storage.kubernetes.io/nvme=true"
+
+# Node taints (if needed for specialized workloads)
+# node-taint:
+#   - "workload=storage:NoSchedule"
+
+# Flannel configuration
+flannel-backend: "vxlan"
+{{- end }}

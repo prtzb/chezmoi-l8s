@@ -1,0 +1,120 @@
+#!/bin/bash
+set -euo pipefail
+
+# Node setup script for {{ .hostname }} - runs once before other scripts
+echo "Setting up {{ .hostname }} for K3s cluster..."
+
+# Update system
+echo "Updating system packages..."
+sudo apt update && sudo apt upgrade -y
+
+# Install required packages
+echo "Installing required packages..."
+sudo apt install -y curl wget git netcat-openbsd \
+    open-iscsi nfs-common \
+    qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+
+# Enable required kernel modules for k3s, Longhorn, and KubeVirt
+echo "Configuring kernel modules..."
+sudo tee /etc/modules-load.d/k3s.conf <<EOF
+# K3s networking
+br_netfilter
+overlay
+
+# Longhorn storage
+nvme-tcp
+iscsi_tcp
+scsi_mod
+
+# KubeVirt virtualization
+kvm
+kvm_intel
+kvm_amd
+vhost
+vhost_net
+vhost_scsi
+vfio
+vfio_pci
+vfio_iommu_type1
+EOF
+
+# Load K3s modules
+sudo modprobe br_netfilter
+sudo modprobe overlay
+
+# Load Longhorn modules
+sudo modprobe nvme-tcp || echo "nvme-tcp module not available (may need kernel update)"
+sudo modprobe iscsi_tcp || echo "iscsi_tcp module not available"
+sudo modprobe scsi_mod || echo "scsi_mod module not available"
+
+# Load KubeVirt modules (some may not be available on ARM)
+sudo modprobe kvm || echo "kvm module not available"
+sudo modprobe kvm_intel || echo "kvm_intel module not available (expected on ARM)"
+sudo modprobe kvm_amd || echo "kvm_amd module not available (expected on ARM/Intel)"
+sudo modprobe vhost || echo "vhost module not available"
+sudo modprobe vhost_net || echo "vhost_net module not available"
+sudo modprobe vhost_scsi || echo "vhost_scsi module not available"
+sudo modprobe vfio || echo "vfio module not available"
+sudo modprobe vfio_pci || echo "vfio_pci module not available"
+sudo modprobe vfio_iommu_type1 || echo "vfio_iommu_type1 module not available"
+
+# Configure sysctl for k3s
+echo "Configuring sysctl parameters..."
+sudo tee /etc/sysctl.d/k3s.conf <<EOF
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+sudo sysctl --system
+
+# Disable swap (required for k3s)
+echo "Disabling swap..."
+sudo swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+# Set hostname
+echo "Setting hostname..."
+sudo hostnamectl set-hostname {{ .hostname }}
+
+# Configure firewall rules (if ufw is enabled)
+if sudo ufw status | grep -q "Status: active"; then
+    echo "Configuring firewall rules..."
+    {{- if .is_control_plane }}
+    # Control plane ports
+    sudo ufw allow 6443/tcp  # Kubernetes API
+    sudo ufw allow 2379:2380/tcp  # etcd
+    sudo ufw allow 10250/tcp # kubelet
+    sudo ufw allow 10259/tcp # kube-scheduler
+    sudo ufw allow 10257/tcp # kube-controller-manager
+    sudo ufw allow 8472/udp  # Flannel VXLAN
+    sudo ufw allow 51820/udp # Flannel Wireguard
+    sudo ufw allow 51821/udp # Flannel Wireguard IPv6
+    # HAProxy stats
+    sudo ufw allow 8404/tcp
+    {{- end }}
+    {{- if .is_worker }}
+    # Worker ports
+    sudo ufw allow 10250/tcp # kubelet
+    sudo ufw allow 8472/udp  # Flannel VXLAN
+    sudo ufw allow 51820/udp # Flannel Wireguard
+    sudo ufw allow 51821/udp # Flannel Wireguard IPv6
+    {{- end }}
+    # SSH and cluster internal communication
+    sudo ufw allow 22/tcp
+    sudo ufw allow from 10.0.1.0/24
+fi
+
+# Enable and start services for Longhorn and KubeVirt
+echo "Configuring storage and virtualization services..."
+sudo systemctl enable iscsid
+sudo systemctl start iscsid
+
+# Add user to libvirt group for KubeVirt (if user exists)
+if id "ubuntu" &>/dev/null; then
+    sudo usermod -aG libvirt ubuntu
+fi
+
+echo "Node {{ .hostname }} setup completed"
+echo "Kernel modules loaded for K3s, Longhorn storage, and KubeVirt virtualization"
+echo "Reboot recommended to ensure all modules are properly loaded"

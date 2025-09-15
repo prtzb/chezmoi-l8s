@@ -1,0 +1,62 @@
+{{- if .is_control_plane }}
+# K3s server configuration for control plane nodes
+token: {{ env "K3S_TOKEN" | default "your-cluster-token-change-me" }}
+{{- if .is_bootstrap }}
+cluster-init: true
+{{- else }}
+server: https://{{ .network.virtual_ip }}:6443
+{{- end }}
+
+# Network configuration
+cluster-cidr: {{ .k3s.cluster_cidr }}
+service-cidr: {{ .k3s.service_cidr }}
+cluster-dns: {{ .k3s.cluster_dns }}
+
+# Node configuration
+node-ip: {{ .node_ip }}
+node-external-ip: {{ .node_ip }}
+advertise-address: {{ .node_ip }}
+bind-address: {{ .node_ip }}
+
+# TLS configuration
+tls-san:
+  - {{ .network.virtual_ip }}
+  - k3s-api
+  - k3s-cluster
+  - {{ .node_ip }}
+  - {{ .hostname }}
+
+# Disable components (we'll use external)
+disable:
+  - traefik
+  - servicelb
+
+# Enable components
+{{- if .is_bootstrap }}
+write-kubeconfig-mode: "0644"
+{{- end }}
+
+# Datastore configuration
+datastore-endpoint: "etcd"
+
+# Kubelet configuration
+kubelet-arg:
+  - "node-ip={{ .node_ip }}"
+  - "cluster-dns={{ .k3s.cluster_dns }}"
+
+# API server configuration
+kube-apiserver-arg:
+  - "advertise-address={{ .node_ip }}"
+  - "bind-address=0.0.0.0"
+
+# Controller manager configuration
+kube-controller-manager-arg:
+  - "bind-address=0.0.0.0"
+
+# Scheduler configuration
+kube-scheduler-arg:
+  - "bind-address=0.0.0.0"
+
+# Flannel configuration
+flannel-backend: "vxlan"
+{{- end }}

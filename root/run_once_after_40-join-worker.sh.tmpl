@@ -1,0 +1,36 @@
+{{- if .is_worker }}#!/bin/bash
+set -euo pipefail
+
+# Join worker node {{ .hostname }} to K3s cluster
+echo "🚀 Joining {{ .hostname }} to K3s cluster as worker..."
+
+# Verify K3S_TOKEN is set
+if [[ -z "${K3S_TOKEN:-}" ]]; then
+    echo "❌ K3S_TOKEN environment variable must be set"
+    echo "This should be provided via cloud-init userdata or instance metadata"
+    exit 1
+fi
+
+echo "Using K3S_TOKEN: ${K3S_TOKEN:0:8}..." # Only show first 8 chars for security
+
+# Wait for cluster API to be available
+echo "⏳ Waiting for cluster API at {{ .network.virtual_ip }}:6443..."
+timeout 300 bash -c 'until nc -z {{ .network.virtual_ip }} 6443; do
+    echo "Waiting for cluster API..."
+    sleep 10
+done'
+
+# Install K3s agent
+echo "⚙️ Installing K3s agent..."
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ .k3s.version }}" sh -s - agent
+
+# Wait for this node to be ready
+echo "⏳ Waiting for {{ .hostname }} to be ready..."
+timeout 300 bash -c 'until curl -s --connect-timeout 5 http://{{ .network.virtual_ip }}:6443/api/v1/nodes/{{ .hostname }} >/dev/null 2>&1; do sleep 5; done'
+
+echo "✅ {{ .hostname }} joined cluster successfully!"
+echo "📋 Node registered as worker"
+
+# Note: Workers don't get kubeconfig by default - that's managed from control plane
+echo "💡 Use kubectl from a control plane node to manage the cluster"
+{{- end }}

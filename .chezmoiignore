@@ -1,0 +1,29 @@
+# Ignore files that shouldn't be applied to all nodes
+{{- if not .is_control_plane }}
+etc/haproxy/
+etc/keepalived/
+{{- end }}
+
+{{- if not .is_bootstrap }}
+scripts/bootstrap-cluster.sh
+{{- end }}
+
+{{- if not (and .is_control_plane (not .is_bootstrap)) }}
+scripts/join-control-plane.sh
+{{- end }}
+
+{{- if not .is_worker }}
+scripts/join-worker.sh
+etc/k3s/agent.yaml
+{{- end }}
+
+{{- if .is_worker }}
+etc/k3s/server.yaml
+{{- end }}
+
+# Always ignore these
+README.md
+CLAUDE.md
+.git/
+.gitignore
+.chezmoiroot

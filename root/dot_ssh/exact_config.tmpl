@@ -1,0 +1,26 @@
+# SSH configuration for k3s cluster nodes
+Host cp-*
+    User ubuntu
+    IdentityFile ~/.ssh/k3s_cluster_key
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+Host worker-*
+    User ubuntu
+    IdentityFile ~/.ssh/k3s_cluster_key
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+# Specific node configurations
+{{- range $hostname, $ip := .node_ips }}
+Host {{ $hostname }}
+    HostName {{ $ip }}
+    User ubuntu
+    IdentityFile ~/.ssh/k3s_cluster_key
+{{- end }}
+
+# Cluster API access
+Host k3s-api
+    HostName {{ .network.virtual_ip }}
+    User ubuntu
+    IdentityFile ~/.ssh/k3s_cluster_key
