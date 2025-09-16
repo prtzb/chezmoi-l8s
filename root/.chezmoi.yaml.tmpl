@@ -4,6 +4,8 @@
 {{- $isBootstrap := eq $hostname "cp-a7f3" -}}
 {{- $nodeIps := dict "cp-a7f3" "10.0.1.129" "cp-b9e1" "10.0.1.130" "cp-c4d8" "10.0.1.131" "worker-x1y2" "10.0.1.132" "worker-z5w9" "10.0.1.133" "worker-m3n7" "10.0.1.134" -}}
 
+destination: "/"
+
 data:
   # Node identification
   hostname: {{ $hostname | quote }}
