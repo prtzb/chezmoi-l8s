@@ -1,8 +1,8 @@
 {{- if .is_bootstrap }}#!/bin/bash
 set -euo pipefail
 
-# Bootstrap K3s cluster on {{ .data.hostname }}
-echo "Bootstrapping K3s cluster on {{ .data.hostname }}..."
+# Bootstrap K3s cluster on {{ .hostname }}
+echo "Bootstrapping K3s cluster on {{ .hostname }}..."
 
 # Verify K3S_TOKEN is set
 if [[ -z "${K3S_TOKEN:-}" ]]; then
@@ -15,7 +15,7 @@ echo "Using K3S_TOKEN: ${K3S_TOKEN:0:8}..." # Only show first 8 chars for securi
 
 # Install K3s server with cluster-init
 echo "Installing K3s server..."
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ .data.k3s.version }}" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ .k3s.version }}" sh -s - server
 
 # Wait for k3s to be ready
 echo "Waiting for K3s to be ready..."
@@ -29,7 +29,7 @@ sudo chown $(id -u):$(id -g) ~/.kube/config
 chmod 600 ~/.kube/config
 
 # Update kubeconfig to use virtual IP
-sed -i 's/127.0.0.1/{{ .data.network.virtual_ip }}/g' ~/.kube/config
+sed -i 's/127.0.0.1/{{ .network.virtual_ip }}/g' ~/.kube/config
 
 # Display cluster info
 echo "K3s cluster bootstrapped successfully"

@@ -1,4 +1,4 @@
 {{- if .is_control_plane }}#!/bin/bash
 # keepalived master script
-logger "KeepAlived: {{ .data.hostname }} became MASTER for VIP {{ .data.ha.virtual_ip }}"
+logger "KeepAlived: {{ .hostname }} became MASTER for VIP {{ .ha.virtual_ip }}"
 {{- end }}

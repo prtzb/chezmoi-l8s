@@ -1,6 +1,6 @@
 {{- if .is_control_plane }}
 global_defs {
-    router_id {{ .data.hostname }}
+    router_id {{ .hostname }}
     enable_script_security
     script_user root
 }
@@ -15,8 +15,8 @@ vrrp_script chk_haproxy {
 
 vrrp_instance VI_1 {
     state {{ if eq .hostname "cp-a7f3" }}MASTER{{ else }}BACKUP{{ end }}
-    interface {{ .data.ha.interface }}
-    virtual_router_id {{ .data.ha.router_id }}
+    interface {{ .ha.interface }}
+    virtual_router_id {{ .ha.router_id }}
     priority {{ if eq .hostname "cp-a7f3" }}110{{ else if eq .hostname "cp-b9e1" }}105{{ else }}100{{ end }}
     advert_int 1
 
@@ -26,7 +26,7 @@ vrrp_instance VI_1 {
     }
 
     virtual_ipaddress {
-        {{ .data.ha.virtual_ip }}/24 dev {{ .data.ha.interface }}
+        {{ .ha.virtual_ip }}/24 dev {{ .ha.interface }}
     }
 
     track_script {

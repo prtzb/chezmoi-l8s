@@ -5,12 +5,12 @@ network:
     eth0:
       dhcp4: false
       addresses:
-        - {{ .data.node_ip }}/24
+        - {{ .node_ip }}/24
       routes:
         - to: default
-          via: {{ .data.network.gateway }}
+          via: {{ .network.gateway }}
       nameservers:
         addresses:
-          - {{ .data.network.dns }}
+          - {{ .network.dns }}
         search:
           - local

@@ -1,8 +1,8 @@
 {{- if and .is_control_plane (not .is_bootstrap) }}#!/bin/bash
 set -euo pipefail
 
-# Join control plane node {{ .data.hostname }} to K3s cluster
-echo "Joining {{ .data.hostname }} to K3s cluster as control plane..."
+# Join control plane node {{ .hostname }} to K3s cluster
+echo "Joining {{ .hostname }} to K3s cluster as control plane..."
 
 # Verify K3S_TOKEN is set
 if [[ -z "${K3S_TOKEN:-}" ]]; then
@@ -14,27 +14,27 @@ fi
 echo "Using K3S_TOKEN: ${K3S_TOKEN:0:8}..." # Only show first 8 chars for security
 
 # Wait for virtual IP to be available (bootstrap node should have it)
-echo "⏳ Waiting for virtual IP {{ .data.network.virtual_ip }} to be available..."
-timeout 300 bash -c 'until ping -c 1 {{ .data.network.virtual_ip }} >/dev/null 2>&1; do
+echo "⏳ Waiting for virtual IP {{ .network.virtual_ip }} to be available..."
+timeout 300 bash -c 'until ping -c 1 {{ .network.virtual_ip }} >/dev/null 2>&1; do
     echo "Waiting for virtual IP..."
     sleep 10
 done'
 
 # Wait for K3s API to be available
-echo "⏳ Waiting for K3s API at {{ .data.network.virtual_ip }}:6443..."
-timeout 300 bash -c 'until nc -z {{ .data.network.virtual_ip }} 6443; do
+echo "⏳ Waiting for K3s API at {{ .network.virtual_ip }}:6443..."
+timeout 300 bash -c 'until nc -z {{ .network.virtual_ip }} 6443; do
     echo "Waiting for K3s API..."
     sleep 10
 done'
 
 # Install K3s server (joining existing cluster)
 echo "Installing K3s server and joining cluster..."
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ .data.k3s.version }}" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ .k3s.version }}" sh -s - server
 
 # Wait for this node to be ready
-echo "Waiting for {{ .data.hostname }} to be ready..."
-timeout 300 bash -c 'until sudo k3s kubectl get node/{{ .data.hostname }} >/dev/null 2>&1; do sleep 5; done'
-sudo k3s kubectl wait --for=condition=Ready node/{{ .data.hostname }} --timeout=300s
+echo "Waiting for {{ .hostname }} to be ready..."
+timeout 300 bash -c 'until sudo k3s kubectl get node/{{ .hostname }} >/dev/null 2>&1; do sleep 5; done'
+sudo k3s kubectl wait --for=condition=Ready node/{{ .hostname }} --timeout=300s
 
 # Copy kubeconfig with proper permissions
 echo "Setting up kubeconfig..."
@@ -43,10 +43,10 @@ sudo chown $(id -u):$(id -g) ~/.kube/config
 chmod 600 ~/.kube/config
 
 # Update kubeconfig to use virtual IP
-sed -i 's/127.0.0.1/{{ .data.network.virtual_ip }}/g' ~/.kube/config
+sed -i 's/127.0.0.1/{{ .network.virtual_ip }}/g' ~/.kube/config
 
 # Display cluster info
-echo "{{ .data.hostname }} joined cluster successfully!"
+echo "{{ .hostname }} joined cluster successfully!"
 echo "Cluster nodes:"
 kubectl get nodes -o wide
 {{- end }}

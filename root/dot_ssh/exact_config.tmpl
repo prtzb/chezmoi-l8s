@@ -21,6 +21,6 @@ Host {{ $hostname }}
 
 # Cluster API access
 Host k3s-api
-    HostName {{ .data.network.virtual_ip }}
+    HostName {{ .network.virtual_ip }}
     User ubuntu
     IdentityFile ~/.ssh/k3s_cluster_key

@@ -23,7 +23,7 @@ defaults
     errorfile 504 /etc/haproxy/errors/504.http
 
 frontend k3s_api
-    bind {{ .data.network.virtual_ip }}:6443
+    bind {{ .network.virtual_ip }}:6443
     mode tcp
     option tcplog
     default_backend k3s_servers
@@ -40,7 +40,7 @@ backend k3s_servers
 
 # Optional: Stats page
 listen stats
-    bind {{ .data.node_ip }}:8404
+    bind {{ .node_ip }}:8404
     stats enable
     stats uri /stats
     stats refresh 10s
