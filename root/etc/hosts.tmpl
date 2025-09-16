@@ -5,12 +5,9 @@ ff02::2   ip6-allrouters
 
 # K3s cluster nodes
 {{ .network.virtual_ip }} k3s-api k3s-cluster
-{{ .node_ips.cp_a7f3 }} cp-a7f3
-{{ .node_ips.cp_b9e1 }} cp-b9e1
-{{ .node_ips.cp_c4d8 }} cp-c4d8
-{{ .node_ips.worker_x1y2 }} worker-x1y2
-{{ .node_ips.worker_z5w9 }} worker-z5w9
-{{ .node_ips.worker_m3n7 }} worker-m3n7
+{{- range $hostname, $ip := .node_ips }}
+{{ $ip }} {{ $hostname }}
+{{- end }}
 
 # This node
 {{ .node_ip }} {{ .hostname }}
