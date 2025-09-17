@@ -15,7 +15,7 @@ K3S_TOKEN=$(cat /var/lib/rancher/k3s/server/token)
 
 # Install K3s server with cluster-init
 echo "Installing K3s server..."
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ .k3s.version }}" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ .k3s.version }}" K3S_TOKEN="$K3S_TOKEN" sh -s - server
 
 # Wait for k3s to be ready
 echo "Waiting for K3s to be ready..."
