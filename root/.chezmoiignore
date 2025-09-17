@@ -14,11 +14,6 @@ scripts/join-control-plane.sh
 
 {{- if not .is_worker }}
 scripts/join-worker.sh
-etc/k3s/agent.yaml
-{{- end }}
-
-{{- if .is_worker }}
-etc/k3s/server.yaml
 {{- end }}
 
 # Always ignore these
