@@ -1,12 +1,7 @@
 {{- if .is_control_plane }}#!/bin/bash
 set -euo pipefail
 
-# Install and configure HA services for control plane node {{ .hostname }}
-echo "Installing HAProxy and Keepalived on {{ .hostname }}..."
-
-# Install packages
-sudo apt update
-sudo apt install -y haproxy keepalived
+echo "Enabling haproxy and keepalived..."
 
 # Enable and start services
 sudo systemctl enable haproxy keepalived
