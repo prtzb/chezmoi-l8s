@@ -4,8 +4,11 @@ set -euo pipefail
 echo "Enabling haproxy and keepalived..."
 
 # Enable and start services
-sudo systemctl enable haproxy keepalived
-sudo systemctl restart haproxy keepalived
+sudo systemctl enable keepalived
+sudo systemctl start keepalived
+
+sudo systemctl enable haproxy
+sudo systemctl start haproxy
 
 # Verify services are running
 if sudo systemctl is-active --quiet haproxy; then
