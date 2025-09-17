@@ -69,11 +69,11 @@ spec:
     # Enable IP forwarding
     ipv4NativeRoutingCIDR: {{ .k3s.cluster_cidr }}
 
-    # Auto-direct node routes (disabled due to tunneling)
-    autoDirectNodeRoutes: false
+    # Routing mode configuration
+    tunnelProtocol: vxlan
 
-    # Tunnel configuration
-    tunnel: vxlan
+    # Auto-direct node routes (disabled in overlay mode)
+    autoDirectNodeRoutes: false
 
     # Enable bandwidth manager
     bandwidthManager:
