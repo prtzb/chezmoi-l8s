@@ -1,6 +1,6 @@
 {{- if .is_control_plane }}
 # K3s server configuration for control plane nodes
-token: {{ env "K3S_TOKEN" | default "your-cluster-token-change-me" }}
+token-file: /var/lib/rancher/k3s/server/token
 {{- if .is_bootstrap }}
 cluster-init: true
 {{- else }}
@@ -26,10 +26,11 @@ tls-san:
   - {{ .node_ip }}
   - {{ .hostname }}
 
-# Disable components (we'll use external)
+# Disable components (we'll use external/Cilium)
 disable:
   - traefik
   - servicelb
+  - flannel
 
 # Enable components
 {{- if .is_bootstrap }}
@@ -57,6 +58,7 @@ kube-controller-manager-arg:
 kube-scheduler-arg:
   - "bind-address=0.0.0.0"
 
-# Flannel configuration
-flannel-backend: "vxlan"
+# CNI configuration (Cilium will be installed via Helm)
+flannel-backend: none
+disable-network-policy: true
 {{- end }}

@@ -4,14 +4,14 @@ set -euo pipefail
 # Bootstrap K3s cluster on {{ .hostname }}
 echo "Bootstrapping K3s cluster on {{ .hostname }}..."
 
-# Verify K3S_TOKEN is set
-if [[ -z "${K3S_TOKEN:-}" ]]; then
-    echo "K3S_TOKEN environment variable must be set"
-    echo "This should be provided via cloud-init userdata or instance metadata"
+# Verify K3S token file exists
+if [[ ! -f "/var/lib/rancher/k3s/server/token" ]]; then
+    echo "K3S token file /var/lib/rancher/k3s/server/token does not exist"
+    echo "This file must be present before running K3s bootstrap"
     exit 1
 fi
 
-echo "Using K3S_TOKEN: ${K3S_TOKEN:0:8}..." # Only show first 8 chars for security
+K3S_TOKEN=$(cat /var/lib/rancher/k3s/server/token)
 
 # Install K3s server with cluster-init
 echo "Installing K3s server..."

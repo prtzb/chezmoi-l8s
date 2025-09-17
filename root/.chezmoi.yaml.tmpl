@@ -38,6 +38,9 @@ data:
     service_cidr: "10.43.0.0/16"
     cluster_dns: "10.43.0.10"
 
+  # Cluster configuration
+  cluster_name: "chezmoi-l8s"
+
   # HA configuration for control plane
   ha:
     enabled: {{ $isControlPlane }}

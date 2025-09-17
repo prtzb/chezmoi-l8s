@@ -4,14 +4,14 @@ set -euo pipefail
 # Join worker node {{ .hostname }} to K3s cluster
 echo "Joining {{ .hostname }} to K3s cluster as worker..."
 
-# Verify K3S_TOKEN is set
-if [[ -z "${K3S_TOKEN:-}" ]]; then
-    echo "K3S_TOKEN environment variable must be set"
-    echo "This should be provided via cloud-init userdata or instance metadata"
+# Verify K3S token file exists
+if [[ ! -f "/var/lib/rancher/k3s/server/token" ]]; then
+    echo "K3S token file /var/lib/rancher/k3s/server/token does not exist"
+    echo "This file must be present before joining as worker"
     exit 1
 fi
 
-echo "Using K3S_TOKEN: ${K3S_TOKEN:0:8}..." # Only show first 8 chars for security
+K3S_TOKEN=$(cat /var/lib/rancher/k3s/server/token)
 
 # Wait for cluster API to be available
 echo "⏳ Waiting for cluster API at {{ .network.virtual_ip }}:6443..."

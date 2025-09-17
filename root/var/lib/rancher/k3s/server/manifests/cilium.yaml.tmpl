@@ -1,0 +1,96 @@
+{{- if .is_bootstrap }}
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  repo: https://helm.cilium.io/
+  chart: cilium
+  targetNamespace: kube-system
+  valuesContent: |-
+    # CNI Configuration
+    cni:
+      install: true
+      chainingMode: none
+
+    # Cluster Configuration
+    cluster:
+      name: {{ .cluster_name | default "k3s-cluster" }}
+      id: 1
+
+    # IPAM Configuration
+    ipam:
+      mode: kubernetes
+      operator:
+        clusterPoolIPv4PodCIDRList:
+          - {{ .k3s.cluster_cidr }}
+
+    # Hubble Observability
+    hubble:
+      enabled: true
+      relay:
+        enabled: true
+      ui:
+        enabled: true
+        service:
+          type: ClusterIP
+      metrics:
+        enabled:
+          - dns
+          - drop
+          - tcp
+          - flow
+          - port-distribution
+          - icmp
+          - http
+
+    # Load Balancer (L2 Announcements)
+    l2announcements:
+      enabled: true
+
+    # Load Balancer IP Address Management
+    loadBalancer:
+      algorithm: maglev
+      mode: dsr
+
+    # External Traffic Policy
+    externalTrafficPolicy: Local
+
+    # Enable L2 load balancer
+    bgpControlPlane:
+      enabled: false
+
+    # Operator Configuration
+    operator:
+      replicas: 1
+      rollOutPods: true
+
+    # Enable IP forwarding
+    ipv4NativeRoutingCIDR: {{ .k3s.cluster_cidr }}
+
+    # Auto-direct node routes
+    autoDirectNodeRoutes: true
+
+    # Enable bandwidth manager
+    bandwidthManager:
+      enabled: true
+      bbr: true
+
+    # Enable local redirect policy
+    localRedirectPolicy: true
+
+    # Security
+    enableIPv4Masquerade: true
+    enableIPv6Masquerade: false
+
+    # Monitoring
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: false
+
+    # Debug (disable in production)
+    debug:
+      enabled: false
+{{- end }}
