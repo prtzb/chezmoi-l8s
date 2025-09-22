@@ -37,8 +37,7 @@ disable:
 write-kubeconfig-mode: "0644"
 {{- end }}
 
-# Datastore configuration
-datastore-endpoint: "etcd"
+# Datastore configuration (using embedded etcd with cluster-init)
 
 # Kubelet configuration
 kubelet-arg:
