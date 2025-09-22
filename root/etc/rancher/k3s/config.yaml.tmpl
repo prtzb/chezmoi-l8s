@@ -57,7 +57,7 @@ kube-controller-manager-arg:
 kube-scheduler-arg:
   - "bind-address=0.0.0.0"
 
-# CNI configuration (Cilium will be installed via Helm)
+# CNI configuration (Cilium will be installed via CLI)
 flannel-backend: none
 disable-network-policy: true
 {{- else }}
@@ -84,7 +84,7 @@ node-label:
 # node-taint:
 #   - "workload=storage:NoSchedule"
 
-# CNI configuration (Cilium will be used)
+# CNI configuration (Cilium will be installed via CLI)
 flannel-backend: none
 disable-network-policy: true
 {{- end }}
