@@ -50,15 +50,23 @@ else
 
     # Install Cilium with custom configuration
     cilium install \
-        --cluster-name="{{ .cluster_name | default "k3s-cluster" }}" \
-        --cluster-id=1 \
-        --ipam=kubernetes \
-        --tunnel=vxlan \
-        --enable-l2-announcements \
-        --enable-hubble \
-        --hubble-listen-address=":4244" \
-        --hubble-relay \
-        --hubble-ui \
+        --set cluster.name="{{ .cluster_name | default "k3s-cluster" }}" \
+        --set cluster.id=1 \
+        --set ipam.mode=kubernetes \
+        --set tunnelProtocol=vxlan \
+        --set l2announcements.enabled=true \
+        --set hubble.enabled=true \
+        --set hubble.listenAddress=":4244" \
+        --set hubble.relay.enabled=true \
+        --set hubble.ui.enabled=true \
+        --set operator.replicas=1 \
+        --set ipv4NativeRoutingCIDR="{{ .k3s.cluster_cidr }}" \
+        --set autoDirectNodeRoutes=false \
+        --set bandwidthManager.enabled=true \
+        --set bandwidthManager.bbr=true \
+        --set localRedirectPolicy=true \
+        --set enableIPv4Masquerade=true \
+        --set enableIPv6Masquerade=false \
         --wait
 
     echo "Cilium installation completed"
