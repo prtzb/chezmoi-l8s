@@ -44,7 +44,7 @@ data:
       bootstrap: false
 
   # Current node IP
-  node_ip: {{ (index .nodes $hostname).ip | quote }}
+  node_ip: {{ (index $.data.nodes $hostname).ip | quote }}
 
   # Network configuration
   network:
@@ -65,9 +65,9 @@ data:
 
   # HA configuration for servers
   ha:
-    enabled: {{ eq ((index .nodes $hostname).node_type | default "unknown") "server" }}
+    enabled: {{ eq ((index $.data.nodes $hostname).node_type | default "unknown") "server" }}
     virtual_ip: "10.0.1.128"
     interface: "eth0"
-    router_id: {{ if eq ((index .nodes $hostname).node_type | default "unknown") "server" }}{{ (index .nodes $hostname).router_id }}{{ else }}0{{ end }}
+    router_id: {{ if eq ((index $.data.nodes $hostname).node_type | default "unknown") "server" }}{{ (index .nodes $hostname).router_id }}{{ else }}0{{ end }}
 
 destDir: "/"
