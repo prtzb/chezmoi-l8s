@@ -1,4 +1,4 @@
-{{- if .is_control_plane }}
+{{- if .is_server }}
 global
     daemon
     user haproxy
@@ -32,9 +32,9 @@ backend k3s_servers
     mode tcp
     balance roundrobin
     option tcp-check
-    {{- range $hostname, $ip := .node_ips }}
-    {{- if or (eq $hostname "cp-a7f3") (eq $hostname "cp-b9e1") (eq $hostname "cp-c4d8") }}
-    server {{ $hostname }} {{ $ip }}:6443 check port 6443
+    {{- range $hostname, $config := .nodes }}
+    {{- if eq $config.node_type "server" }}
+    server {{ $hostname }} {{ $config.ip }}:6443 check port 6443
     {{- end }}
     {{- end }}
 

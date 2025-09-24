@@ -1,5 +1,14 @@
-{{- if .is_control_plane }}#!/bin/bash
+#!/bin/bash
 set -euo pipefail
+
+# Source node configuration
+source /etc/rancher/k3s/node_vars.env
+
+# Exit early if this is not a server node
+if [[ "$IS_SERVER" != "true" ]]; then
+    echo "This node is not a server node (IS_SERVER=$IS_SERVER), skipping HA services..."
+    exit 0
+fi
 
 echo "Enabling haproxy and keepalived..."
 
@@ -25,5 +34,4 @@ else
     sudo systemctl status keepalived
 fi
 
-echo "HA services installed and configured on {{ .hostname }}"
-{{- end }}
+echo "HA services installed and configured on $HOSTNAME"

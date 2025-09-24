@@ -1,8 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-# Node setup script for {{ .hostname }} - runs once before other scripts
-echo "Setting up {{ .hostname }} for K3s cluster..."
+# Source node configuration
+source /etc/rancher/k3s/node_vars.env
+
+# Node setup script - runs once before other scripts
+echo "Setting up $HOSTNAME for K3s cluster..."
 
 # Update system
 echo "Updating system packages..."
@@ -76,31 +79,34 @@ sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
 # Set hostname
 echo "Setting hostname..."
-sudo hostnamectl set-hostname {{ .hostname }}
+sudo hostnamectl set-hostname "$HOSTNAME"
 
 # Configure firewall rules (if ufw is enabled)
 if sudo ufw status | grep -q "Status: active"; then
     echo "Configuring firewall rules..."
-    {{- if .is_control_plane }}
-    # Control plane ports
-    sudo ufw allow 6443/tcp  # Kubernetes API
-    sudo ufw allow 2379:2380/tcp  # etcd
-    sudo ufw allow 10250/tcp # kubelet
-    sudo ufw allow 10259/tcp # kube-scheduler
-    sudo ufw allow 10257/tcp # kube-controller-manager
-    sudo ufw allow 8472/udp  # Flannel VXLAN
-    sudo ufw allow 51820/udp # Flannel Wireguard
-    sudo ufw allow 51821/udp # Flannel Wireguard IPv6
-    # HAProxy stats
-    sudo ufw allow 8404/tcp
-    {{- end }}
-    {{- if .is_worker }}
-    # Worker ports
-    sudo ufw allow 10250/tcp # kubelet
-    sudo ufw allow 8472/udp  # Flannel VXLAN
-    sudo ufw allow 51820/udp # Flannel Wireguard
-    sudo ufw allow 51821/udp # Flannel Wireguard IPv6
-    {{- end }}
+
+    if [[ "$IS_SERVER" == "true" ]]; then
+        # Control plane ports
+        sudo ufw allow 6443/tcp  # Kubernetes API
+        sudo ufw allow 2379:2380/tcp  # etcd
+        sudo ufw allow 10250/tcp # kubelet
+        sudo ufw allow 10259/tcp # kube-scheduler
+        sudo ufw allow 10257/tcp # kube-controller-manager
+        sudo ufw allow 8472/udp  # Flannel VXLAN
+        sudo ufw allow 51820/udp # Flannel Wireguard
+        sudo ufw allow 51821/udp # Flannel Wireguard IPv6
+        # HAProxy stats
+        sudo ufw allow 8404/tcp
+    fi
+
+    if [[ "$IS_AGENT" == "true" ]]; then
+        # Worker ports
+        sudo ufw allow 10250/tcp # kubelet
+        sudo ufw allow 8472/udp  # Flannel VXLAN
+        sudo ufw allow 51820/udp # Flannel Wireguard
+        sudo ufw allow 51821/udp # Flannel Wireguard IPv6
+    fi
+
     # SSH and cluster internal communication
     sudo ufw allow 22/tcp
     sudo ufw allow from 10.0.1.0/24
@@ -116,6 +122,6 @@ if id "ubuntu" &>/dev/null; then
     sudo usermod -aG libvirt ubuntu
 fi
 
-echo "Node {{ .hostname }} setup completed"
+echo "Node $HOSTNAME setup completed"
 echo "Kernel modules loaded for K3s, Longhorn storage, and KubeVirt virtualization"
 echo "Reboot recommended to ensure all modules are properly loaded"

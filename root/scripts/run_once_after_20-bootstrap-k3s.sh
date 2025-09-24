@@ -1,8 +1,17 @@
-{{- if .is_bootstrap }}#!/bin/bash
+#!/bin/bash
 set -euo pipefail
 
-# Bootstrap K3s cluster on {{ .hostname }}
-echo "Bootstrapping K3s cluster on {{ .hostname }}..."
+# Source node configuration
+source /etc/rancher/k3s/node_vars.env
+
+# Exit early if this is not the bootstrap node
+if [[ "$IS_BOOTSTRAP" != "true" ]]; then
+    echo "This node is not the bootstrap node (IS_BOOTSTRAP=$IS_BOOTSTRAP), skipping..."
+    exit 0
+fi
+
+# Bootstrap K3s cluster on this node
+echo "Bootstrapping K3s cluster on $HOSTNAME..."
 
 # Verify K3S token file exists
 if [[ ! -f "/var/lib/rancher/k3s/server/token" ]]; then
@@ -15,7 +24,7 @@ K3S_TOKEN=$(cat /var/lib/rancher/k3s/server/token)
 
 # Install K3s server with cluster-init
 echo "Installing K3s server..."
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ .k3s.version }}" K3S_TOKEN="$K3S_TOKEN" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="$K3S_VERSION" K3S_TOKEN="$K3S_TOKEN" sh -s - server
 
 # Copy kubeconfig with proper permissions
 echo "Setting up kubeconfig..."
@@ -24,7 +33,7 @@ sudo chown $(id -u):$(id -g) ~/.kube/config
 chmod 600 ~/.kube/config
 
 # Update kubeconfig to use virtual IP
-sed -i 's/127.0.0.1/{{ .network.virtual_ip }}/g' ~/.kube/config
+sed -i "s/127.0.0.1/$VIRTUAL_IP/g" ~/.kube/config
 
 # Display cluster info
 echo "K3s server bootstrapped successfully"
@@ -33,4 +42,3 @@ echo "API server is running, waiting for CNI installation to complete node readi
 echo ""
 echo "Cluster token for other nodes: $K3S_TOKEN"
 echo "Bootstrap complete - CNI installation will follow"
-{{- end }}

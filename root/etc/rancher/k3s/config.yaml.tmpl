@@ -1,7 +1,7 @@
-{{- if .is_control_plane }}
+{{- if .is_server }}
 # K3s server configuration for control plane nodes
 token-file: /var/lib/rancher/k3s/server/token
-{{- if .is_bootstrap }}
+{{- if (index .nodes .hostname).bootstrap }}
 cluster-init: true
 {{- else }}
 server: https://{{ .network.virtual_ip }}:6443
@@ -33,7 +33,7 @@ disable:
   - flannel
 
 # Enable components
-{{- if .is_bootstrap }}
+{{- if (index .nodes .hostname).bootstrap }}
 write-kubeconfig-mode: "0644"
 {{- end }}
 

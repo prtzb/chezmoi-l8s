@@ -1,4 +1,4 @@
-{{- if .is_control_plane }}#!/bin/bash
+{{- if .is_server }}#!/bin/bash
 # keepalived fault script
 logger "KeepAlived: {{ .hostname }} entered FAULT state for VIP {{ .ha.virtual_ip }}"
 {{- end }}

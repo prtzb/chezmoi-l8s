@@ -5,8 +5,8 @@ ff02::2   ip6-allrouters
 
 # K3s cluster nodes
 {{ .network.virtual_ip }} k3s-api k3s-cluster
-{{- range $hostname, $ip := .node_ips }}
-{{ $ip }} {{ $hostname }}
+{{- range $hostname, $config := .nodes }}
+{{ $config.ip }} {{ $hostname }}
 {{- end }}
 
 # This node

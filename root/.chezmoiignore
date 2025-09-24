@@ -1,18 +1,18 @@
 # Ignore files that shouldn't be applied to all nodes
-{{- if not .is_control_plane }}
+{{- if not .is_server }}
 etc/haproxy/
 etc/keepalived/
 {{- end }}
 
-{{- if not .is_bootstrap }}
+{{- if not (index .nodes .hostname).bootstrap }}
 scripts/bootstrap-cluster.sh
 {{- end }}
 
-{{- if not (and .is_control_plane (not .is_bootstrap)) }}
+{{- if not (and .is_server (not (index .nodes .hostname).bootstrap)) }}
 scripts/join-control-plane.sh
 {{- end }}
 
-{{- if not .is_worker }}
+{{- if not .is_agent }}
 scripts/join-worker.sh
 {{- end }}
 

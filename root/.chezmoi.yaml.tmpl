@@ -1,28 +1,50 @@
 {{- $hostname := .chezmoi.hostname -}}
-{{- $isControlPlane := or (eq $hostname "cp-a7f3") (eq $hostname "cp-b9e1") (eq $hostname "cp-c4d8") -}}
-{{- $isWorker := or (eq $hostname "worker-x1y2") (eq $hostname "worker-z5w9") (eq $hostname "worker-m3n7") -}}
-{{- $isBootstrap := eq $hostname "cp-a7f3" -}}
-{{- $nodeIps := dict "cp-a7f3" "10.0.1.129" "cp-b9e1" "10.0.1.130" "cp-c4d8" "10.0.1.131" "worker-x1y2" "10.0.1.132" "worker-z5w9" "10.0.1.133" "worker-m3n7" "10.0.1.134" -}}
-
 
 data:
   # Node identification
   hostname: {{ $hostname | quote }}
-  is_control_plane: {{ $isControlPlane }}
-  is_worker: {{ $isWorker }}
-  is_bootstrap: {{ $isBootstrap }}
+  is_server: {{ eq ((index .nodes $hostname).node_type | default "unknown") "server" }}
+  is_agent: {{ eq ((index .nodes $hostname).node_type | default "unknown") "agent" }}
+  is_bootstrap: {{ (index .nodes $hostname).bootstrap | default false }}
 
-  # Node-specific IPs
-  node_ips:
-    cp-a7f3: "10.0.1.129"
-    cp-b9e1: "10.0.1.130"
-    cp-c4d8: "10.0.1.131"
-    worker-x1y2: "10.0.1.132"
-    worker-z5w9: "10.0.1.133"
-    worker-m3n7: "10.0.1.134"
+  # Node configurations
+  nodes:
+    cp-a7f3:
+      ip: "10.0.1.129"
+      node_type: "server"
+      router_id: 51
+      priority: 110
+      bootstrap: true
+      keepalived_state: "MASTER"
+    cp-b9e1:
+      ip: "10.0.1.130"
+      node_type: "server"
+      router_id: 52
+      priority: 100
+      bootstrap: false
+      keepalived_state: "BACKUP"
+    cp-c4d8:
+      ip: "10.0.1.131"
+      node_type: "server"
+      router_id: 53
+      priority: 90
+      bootstrap: false
+      keepalived_state: "BACKUP"
+    worker-x1y2:
+      ip: "10.0.1.132"
+      node_type: "agent"
+      bootstrap: false
+    worker-z5w9:
+      ip: "10.0.1.133"
+      node_type: "agent"
+      bootstrap: false
+    worker-m3n7:
+      ip: "10.0.1.134"
+      node_type: "agent"
+      bootstrap: false
 
   # Current node IP
-  node_ip: {{ index $nodeIps $hostname | quote }}
+  node_ip: {{ (index .nodes $hostname).ip | quote }}
 
   # Network configuration
   network:
@@ -41,11 +63,11 @@ data:
   # Cluster configuration
   cluster_name: "chezmoi-l8s"
 
-  # HA configuration for control plane
+  # HA configuration for servers
   ha:
-    enabled: {{ $isControlPlane }}
+    enabled: {{ eq ((index .nodes $hostname).node_type | default "unknown") "server" }}
     virtual_ip: "10.0.1.128"
     interface: "eth0"
-    router_id: {{ if eq $hostname "cp-a7f3" }}51{{ else if eq $hostname "cp-b9e1" }}52{{ else }}53{{ end }}
+    router_id: {{ if eq ((index .nodes $hostname).node_type | default "unknown") "server" }}{{ (index .nodes $hostname).router_id }}{{ else }}0{{ end }}
 
 destDir: "/"
