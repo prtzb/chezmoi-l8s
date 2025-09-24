@@ -1,11 +1,12 @@
 {{- $hostname := .chezmoi.hostname -}}
+{{- $nodes := .data.nodes -}}
 
 data:
   # Node identification
   hostname: {{ $hostname | quote }}
-  is_server: {{ eq ((index .nodes $hostname).node_type | default "unknown") "server" }}
-  is_agent: {{ eq ((index .nodes $hostname).node_type | default "unknown") "agent" }}
-  is_bootstrap: {{ (index .nodes $hostname).bootstrap | default false }}
+  is_server: {{ eq ((index $nodes $hostname).node_type | default "unknown") "server" }}
+  is_agent: {{ eq ((index $nodes $hostname).node_type | default "unknown") "agent" }}
+  is_bootstrap: {{ (index $nodes $hostname).bootstrap | default false }}
 
   # Node configurations
   nodes:
