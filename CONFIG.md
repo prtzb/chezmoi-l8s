@@ -182,7 +182,7 @@ network:
 
 ```bash
 # Generate with
-sudo mkdir -p /var/lib/rancher/k3s && sudo openssl rand -hex 32 | sudo tee /var/lib/rancher/k3s/token
+sudo mkdir -p /var/lib/rancher/k3s/server && sudo openssl rand -hex 32 | sudo tee /var/lib/rancher/k3s/token
 ```
 
 # chezmoi

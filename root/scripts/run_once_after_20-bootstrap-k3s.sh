@@ -26,15 +26,6 @@ K3S_TOKEN=$(cat /var/lib/rancher/k3s/server/token)
 echo "Installing K3s server..."
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="$K3S_VERSION" K3S_TOKEN="$K3S_TOKEN" sh -s - server
 
-# Copy kubeconfig with proper permissions
-echo "Setting up kubeconfig..."
-sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sudo chown $(id -u):$(id -g) ~/.kube/config
-chmod 600 ~/.kube/config
-
-# Update kubeconfig to use virtual IP
-sed -i "s/127.0.0.1/$VIRTUAL_IP/g" ~/.kube/config
-
 # Display cluster info
 echo "K3s server bootstrapped successfully"
 echo "API server is running, waiting for CNI installation to complete node readiness"
