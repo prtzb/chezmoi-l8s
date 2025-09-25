@@ -8,7 +8,7 @@ etc/keepalived/
 scripts/bootstrap-cluster.sh
 {{- end }}
 
-{{- if not (and .is_server (not (index .nodes .hostname).bootstrap)) }}
+{{- if not (and .is_server (not .is_bootstrap)) }}
 scripts/join-control-plane.sh
 {{- end }}
 
