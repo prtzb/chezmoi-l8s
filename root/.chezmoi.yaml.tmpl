@@ -4,12 +4,15 @@
 data:
   # Node identification
   hostname: {{ $hostname | quote }}
-  is_server: {{ eq ((index $nodes $hostname).node_type | default "unknown") "server" }}
-  is_agent: {{ eq ((index $nodes $hostname).node_type | default "unknown") "agent" }}
-  is_bootstrap: {{ (index $nodes $hostname).bootstrap | default false }}
-
-  # Current node IP
-  node_ip: {{ (index $nodes $hostname).ip | quote }}
+  ip: {{ (index $nodes $hostname).ip | quote }}
+  node_type: {{ ((index $nodes $hostname).node_type | default "unknown") }}
+  bootstrap: {{ (index $nodes $hostname).bootstrap | default false }}
+  {{ if (eq (index $nodes $hostname) "server" ) -}}
+  router_id: {{ (index $nodes $hostname).router_id | default 0 }}
+  priority: {{ (index $nodes $hostname).priority | default 0 }}
+  keepalived_state: {{ (index $nodes $hostname).keepalived_state | default "UNKNOWN" }}
+  {{ end -}}
+  nodes: {{ $nodes | toYaml }}
 
   # Network configuration
   network:

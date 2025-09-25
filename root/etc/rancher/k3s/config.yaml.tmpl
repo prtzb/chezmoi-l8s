@@ -1,8 +1,9 @@
-{{- if .is_server }}
+{{- if eq .node_type "server" }}
 # K3s server configuration for control plane nodes
 token-file: /var/lib/rancher/k3s/server/token
-{{- if (index .nodes .hostname).bootstrap }}
+{{- if .bootstrap }}
 cluster-init: true
+write-kubeconfig-mode: "0644"
 {{- else }}
 server: https://{{ .network.virtual_ip }}:6443
 {{- end }}
@@ -13,17 +14,17 @@ service-cidr: {{ .k3s.service_cidr }}
 cluster-dns: {{ .k3s.cluster_dns }}
 
 # Node configuration
-node-ip: {{ .node_ip }}
-node-external-ip: {{ .node_ip }}
-advertise-address: {{ .node_ip }}
-bind-address: {{ .node_ip }}
+node-ip: {{ .ip }}
+node-external-ip: {{ .ip }}
+advertise-address: {{ .ip }}
+bind-address: {{ .ip }}
 
 # TLS configuration
 tls-san:
   - {{ .network.virtual_ip }}
   - k3s-api
   - k3s-cluster
-  - {{ .node_ip }}
+  - {{ .ip }}
   - {{ .hostname }}
 
 # Disable components (we'll use external/Cilium)
@@ -32,21 +33,16 @@ disable:
   - servicelb
   - flannel
 
-# Enable components
-{{- if (index .nodes .hostname).bootstrap }}
-write-kubeconfig-mode: "0644"
-{{- end }}
-
 # Datastore configuration (using embedded etcd with cluster-init)
 
 # Kubelet configuration
 kubelet-arg:
-  - "node-ip={{ .node_ip }}"
+  - "node-ip={{ .ip }}"
   - "cluster-dns={{ .k3s.cluster_dns }}"
 
 # API server configuration
 kube-apiserver-arg:
-  - "advertise-address={{ .node_ip }}"
+  - "advertise-address={{ .ip }}"
   - "bind-address=0.0.0.0"
 
 # Controller manager configuration
@@ -66,12 +62,12 @@ token-file: /var/lib/rancher/k3s/server/token
 server: https://{{ .network.virtual_ip }}:6443
 
 # Node configuration
-node-ip: {{ .node_ip }}
-node-external-ip: {{ .node_ip }}
+node-ip: {{ .ip }}
+node-external-ip: {{ .ip }}
 
 # Kubelet configuration
 kubelet-arg:
-  - "node-ip={{ .node_ip }}"
+  - "node-ip={{ .ip }}"
   - "cluster-dns={{ .k3s.cluster_dns }}"
   - "max-pods=250"
 

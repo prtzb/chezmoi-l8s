@@ -40,7 +40,7 @@ backend k3s_servers
 
 # Optional: Stats page
 listen stats
-    bind {{ .node_ip }}:8404
+    bind {{ .ip }}:8404
     stats enable
     stats uri /stats
     stats refresh 10s

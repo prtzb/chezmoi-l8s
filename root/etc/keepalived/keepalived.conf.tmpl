@@ -1,4 +1,4 @@
-{{- if .is_server }}
+{{- if (eq .node_type "server") }}
 global_defs {
     router_id {{ .hostname }}
     enable_script_security
@@ -14,10 +14,10 @@ vrrp_script chk_haproxy {
 }
 
 vrrp_instance VI_1 {
-    state {{ (index .nodes .hostname).keepalived_state | default "BACKUP" }}
+    state {{ .keepalived_state | default "BACKUP" }}
     interface {{ .ha.interface }}
     virtual_router_id {{ .ha.router_id }}
-    priority {{ (index .nodes .hostname).priority }}
+    priority {{ .priority }}
     advert_int 1
 
     authentication {
