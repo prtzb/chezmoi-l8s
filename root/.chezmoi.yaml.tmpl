@@ -1,47 +1,13 @@
 {{- $hostname := .chezmoi.hostname -}}
+{{- $nodes := include "./config/nodes.yaml" | fromYaml -}}
 
 data:
   # Node identification
   hostname: {{ $hostname | quote }}
-  is_server: {{ eq ((index $.nodes $hostname).node_type | default "unknown") "server" }}
-  is_agent: {{ eq ((index $.nodes $hostname).node_type | default "unknown") "agent" }}
-  is_bootstrap: {{ (index $.nodes $hostname).bootstrap | default false }}
-
-  # Node configurations
-  nodes:
-    cp-a7f3:
-      ip: "10.0.1.129"
-      node_type: "server"
-      router_id: 51
-      priority: 110
-      bootstrap: true
-      keepalived_state: "MASTER"
-    cp-b9e1:
-      ip: "10.0.1.130"
-      node_type: "server"
-      router_id: 52
-      priority: 100
-      bootstrap: false
-      keepalived_state: "BACKUP"
-    cp-c4d8:
-      ip: "10.0.1.131"
-      node_type: "server"
-      router_id: 53
-      priority: 90
-      bootstrap: false
-      keepalived_state: "BACKUP"
-    worker-x1y2:
-      ip: "10.0.1.132"
-      node_type: "agent"
-      bootstrap: false
-    worker-z5w9:
-      ip: "10.0.1.133"
-      node_type: "agent"
-      bootstrap: false
-    worker-m3n7:
-      ip: "10.0.1.134"
-      node_type: "agent"
-      bootstrap: false
+  is_server: {{ eq ((index $nodes $hostname).node_type | default "unknown") "server" }}
+  is_agent: {{ eq ((index $nodes $hostname).node_type | default "unknown") "agent" }}
+  is_bootstrap: {{ (index $nodes $hostname).bootstrap | default false }}
+  nodes: {{ $nodes }}
 
   # Current node IP
   node_ip: {{ (index $.nodes $hostname).ip | quote }}
@@ -65,9 +31,9 @@ data:
 
   # HA configuration for servers
   ha:
-    enabled: {{ eq ((index $.nodes $hostname).node_type | default "unknown") "server" }}
+    enabled: {{ eq ((index $nodes $hostname).node_type | default "unknown") "server" }}
     virtual_ip: "10.0.1.128"
     interface: "eth0"
-    router_id: {{ if eq ((index $.nodes $hostname).node_type | default "unknown") "server" }}{{ (index .nodes $hostname).router_id }}{{ else }}0{{ end }}
+    router_id: {{ if eq ((index $nodes $hostname).node_type | default "unknown") "server" }}{{ (index .nodes $hostname).router_id }}{{ else }}0{{ end }}
 
 destDir: "/"
