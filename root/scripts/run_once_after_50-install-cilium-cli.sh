@@ -41,9 +41,6 @@ fi
 
 # Only install Cilium CNI on the bootstrap node
 if [[ "$IS_BOOTSTRAP" == "true" ]]; then
-    # Wait for K3s to be ready
-    echo "Waiting for K3s API server to be ready..."
-    timeout 300 bash -c 'until kubectl get nodes >/dev/null 2>&1; do sleep 5; done'
 
     # Check if Cilium is already installed
     if kubectl get daemonset -n kube-system cilium >/dev/null 2>&1; then
