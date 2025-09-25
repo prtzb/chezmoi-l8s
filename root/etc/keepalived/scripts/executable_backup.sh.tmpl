@@ -1,4 +1,4 @@
-{{- if .is_server }}#!/bin/bash
+{{- if eq .node_type "server" }}#!/bin/bash
 # keepalived backup script
 logger "KeepAlived: {{ .hostname }} became BACKUP for VIP {{ .ha.virtual_ip }}"
 {{- end }}
