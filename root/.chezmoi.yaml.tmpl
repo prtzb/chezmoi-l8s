@@ -1,5 +1,5 @@
 {{- $hostname := .chezmoi.hostname -}}
-{{- $nodes := include "./config/nodes.yaml" | fromYaml -}}
+{{- $nodes := include "./root/nodes.yaml" | fromYaml -}}
 
 data:
   # Node identification
