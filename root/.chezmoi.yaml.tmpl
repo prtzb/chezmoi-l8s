@@ -12,7 +12,7 @@ data:
   priority: {{ (index $nodes $hostname).priority | default 0 }}
   keepalived_state: {{ (index $nodes $hostname).keepalived_state | default "UNKNOWN" }}
   {{ end -}}
-  nodes: {{ $nodes | toYaml }}
+  nodes: {{ $nodes | toJson }}
 
   # Network configuration
   network:
