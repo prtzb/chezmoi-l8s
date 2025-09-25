@@ -7,7 +7,7 @@ data:
   ip: {{ (index $nodes $hostname).ip | quote }}
   node_type: {{ ((index $nodes $hostname).node_type | default "unknown") }}
   bootstrap: {{ (index $nodes $hostname).bootstrap | default false }}
-  {{ if (eq (index $nodes $hostname) "server" ) -}}
+  {{ if (eq (index $nodes $hostname).node_type "server" ) -}}
   router_id: {{ (index $nodes $hostname).router_id | default 0 }}
   priority: {{ (index $nodes $hostname).priority | default 0 }}
   keepalived_state: {{ (index $nodes $hostname).keepalived_state | default "UNKNOWN" }}
