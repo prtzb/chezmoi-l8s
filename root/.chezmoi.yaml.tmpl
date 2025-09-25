@@ -7,7 +7,6 @@ data:
   is_server: {{ eq ((index $nodes $hostname).node_type | default "unknown") "server" }}
   is_agent: {{ eq ((index $nodes $hostname).node_type | default "unknown") "agent" }}
   is_bootstrap: {{ (index $nodes $hostname).bootstrap | default false }}
-  nodes: {{ $nodes }}
 
   # Current node IP
   node_ip: {{ (index $nodes $hostname).ip | quote }}
