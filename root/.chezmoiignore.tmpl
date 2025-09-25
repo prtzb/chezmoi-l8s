@@ -4,7 +4,7 @@ etc/haproxy/
 etc/keepalived/
 {{- end }}
 
-{{- if not (index .nodes .hostname).bootstrap }}
+{{- if not .is_bootstrap }}
 scripts/bootstrap-cluster.sh
 {{- end }}
 
