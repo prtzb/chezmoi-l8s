@@ -1,4 +1,4 @@
-{{- if .is_server }}
+{{- if eq .node_type "server" }}
 global
     daemon
     user haproxy
