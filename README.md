@@ -8,6 +8,8 @@ This repository contains chezmoi configuration files for managing a high-availab
 - **Worker Nodes**: 3x Raspberry Pi 5 with NVMe storage
 - **Network**: 10.0.1.128-255 static IP range
 - **Virtual IP**: 10.0.1.128 (HAProxy load balancer)
+- **CNI**: Cilium with L2 load balancing and Hubble observability
+- **Load Balancer Pool**: 10.0.1.200-220 for service LoadBalancer IPs
 
 ### Node Configuration
 
@@ -52,11 +54,12 @@ export KEEPALIVED_AUTH_PASS="your-secure-password"
 The cluster bootstraps **automatically** when you run `chezmoi apply`. The process is orchestrated through chezmoi run scripts:
 
 #### Automatic Execution Order:
-1. **Node Setup** (`run_once_before_01-setup-node.sh`) - Runs first on all nodes
+1. **Node Setup** (`run_once_after_01-setup-node.sh`) - Runs first on all nodes
 2. **HA Services** (`run_once_after_10-install-ha-services.sh`) - Control plane only
 3. **Bootstrap** (`run_once_after_20-bootstrap-k3s.sh`) - Bootstrap node only
 4. **Join Control Plane** (`run_once_after_30-join-control-plane.sh`) - Other control plane nodes
 5. **Join Workers** (`run_once_after_40-join-worker.sh`) - Worker nodes only
+6. **Install Cilium CNI** (`run_once_after_50-install-cilium-cli.sh`) - Bootstrap node installs Cilium
 
 #### Deploy to Each Node:
 ```bash
@@ -73,6 +76,7 @@ That's it! Each node will automatically:
 - Configure networking and system settings
 - Install and configure required services
 - Bootstrap or join the K3s cluster based on its role
+- Install Cilium CNI with L2 load balancing and Hubble observability (bootstrap node)
 
 ### 5. Verify Cluster
 
@@ -82,13 +86,20 @@ kubectl get nodes -o wide
 
 # Check HA status
 curl http://10.0.1.128:8404/stats  # HAProxy stats
+
+# Check Cilium status
+cilium status
+
+# Access Hubble UI (from bootstrap node)
+cilium hubble ui
 ```
 
 ## Configuration Files
 
+- **Node Config**: `/root/nodes.yaml` - Centralized node definitions and roles
 - **Network**: `/etc/netplan/01-network-config.yaml` - Static IP configuration
-- **K3s Server**: `/etc/k3s/server.yaml` - Control plane configuration
-- **K3s Agent**: `/etc/k3s/agent.yaml` - Worker node configuration
+- **K3s Config**: `/etc/rancher/k3s/config.yaml` - Unified K3s server/agent configuration
+- **Node Variables**: `/etc/rancher/k3s/node_vars.env` - Environment variables for scripts
 - **HAProxy**: `/etc/haproxy/haproxy.cfg` - Load balancer for API server
 - **Keepalived**: `/etc/keepalived/keepalived.conf` - Virtual IP management
 - **SSH**: `~/.ssh/config` - Cluster node access configuration
@@ -103,9 +114,10 @@ chezmoi update
 ```
 
 ### Add New Nodes
-1. Add node details to `.chezmoi.yaml.tmpl`
+1. Add node details to `/root/nodes.yaml`
 2. Update IP allocation in network configs
-3. Commit changes and apply via chezmoi
+3. Update load balancer pool range if needed (for LoadBalancer services)
+4. Commit changes and apply via chezmoi
 
 ### Backup/Restore
 ```bash
@@ -147,6 +159,10 @@ sudo journalctl -u k3s -f
 kubectl cluster-info
 kubectl get nodes
 kubectl get pods --all-namespaces
+
+# Check CNI status
+cilium status
+cilium connectivity test  # Network connectivity test
 ```
 
 ### Network Issues

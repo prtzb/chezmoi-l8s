@@ -11,6 +11,8 @@ This is a **chezmoi-based configuration management repository** for deploying an
 - **3x Worker Nodes**: Raspberry Pi 5 with NVMe storage for high performance
 - **Virtual IP**: 10.0.1.128 (load balanced API server access)
 - **Network Range**: 10.0.1.128-255 static IP allocation
+- **CNI**: Cilium with L2 load balancing and network observability
+- **Load Balancer Pool**: 10.0.1.200-220 for service LoadBalancer IPs
 
 **High Availability Features:**
 - HAProxy load balancer for K3s API server
@@ -22,6 +24,7 @@ This is a **chezmoi-based configuration management repository** for deploying an
 
 - **[Chezmoi](https://chezmoi.io/)**: Dotfile and configuration management
 - **[K3s](https://k3s.io/)**: Lightweight Kubernetes distribution
+- **[Cilium](https://cilium.io/)**: eBPF-based CNI with L2 load balancing and Hubble observability
 - **HAProxy**: Load balancer for API server HA
 - **keepalived**: Virtual IP management and failover
 - **Longhorn**: Distributed block storage (prepared for)
@@ -31,18 +34,20 @@ This is a **chezmoi-based configuration management repository** for deploying an
 
 ```
 chezmoi-l8s/
-├── .chezmoi.yaml.tmpl           # Node configuration and templating data
-├── .chezmoiignore               # Files to ignore per node type
 ├── .chezmoiroot                 # Specifies "root" as source directory
 ├── README.md                    # Detailed setup documentation
 ├── CLAUDE.md                    # This project overview
 └── root/                        # Chezmoi managed files directory
-    ├── run_once_*.sh.tmpl       # Orchestrated setup scripts
+    ├── .chezmoi.yaml.tmpl       # Node configuration and templating data
+    ├── .chezmoiignore.tmpl      # Files to ignore per node type
+    ├── root/nodes.yaml          # Centralized node definitions
+    ├── scripts/run_once_*.sh    # Orchestrated setup scripts
     ├── etc/                     # System configuration files
-    │   ├── k3s/                 # K3s server/agent configs
+    │   ├── rancher/k3s/         # K3s unified configs and variables
     │   ├── haproxy/             # Load balancer configuration
     │   ├── keepalived/          # HA virtual IP management
-    │   └── netplan/             # Static network configuration
+    │   ├── netplan/             # Static network configuration
+    │   └── hosts.tmpl           # Host file entries
     ├── dot_kube/                # kubectl configuration
     ├── dot_ssh/                 # SSH client configuration
     └── scripts/                 # Additional utility scripts
@@ -52,11 +57,12 @@ chezmoi-l8s/
 
 The cluster deploys automatically via chezmoi's run scripts in order:
 
-1. **Node Setup** (`run_once_before_01-setup-node.sh`) - System prep, packages, kernel modules
+1. **Node Setup** (`run_once_after_01-setup-node.sh`) - System prep, packages, kernel modules
 2. **HA Services** (`run_once_after_10-install-ha-services.sh`) - HAProxy + keepalived (control plane only)
 3. **Bootstrap** (`run_once_after_20-bootstrap-k3s.sh`) - Initial cluster creation (bootstrap node only)
 4. **Control Plane Join** (`run_once_after_30-join-control-plane.sh`) - Additional control plane nodes
 5. **Worker Join** (`run_once_after_40-join-worker.sh`) - Worker nodes join cluster
+6. **Cilium CNI** (`run_once_after_50-install-cilium-cli.sh`) - CNI installation with L2 load balancing and Hubble
 
 ## Node Configuration
 
@@ -70,6 +76,12 @@ The cluster deploys automatically via chezmoi's run scripts in order:
 | worker-m3n7 | 10.0.1.134 | Worker | Raspberry Pi 5 + NVMe |
 
 ## Advanced Features
+
+**Networking:**
+- Cilium CNI with eBPF dataplane for high performance
+- L2 load balancing for LoadBalancer services (10.0.1.200-220)
+- Hubble for network observability and troubleshooting
+- VXLAN tunneling for pod-to-pod communication
 
 **Storage Preparation:**
 - Longhorn prerequisites (open-iscsi, nvme-tcp modules)
@@ -100,5 +112,6 @@ Each node automatically configures itself based on its hostname and joins the cl
 
 - **Updates**: `chezmoi update` pulls latest configs
 - **Monitoring**: HAProxy stats at `http://10.0.1.128:8404/stats`
+- **Network Observability**: Hubble UI via `cilium hubble ui` for network troubleshooting
 - **Backups**: Built-in etcd snapshot functionality
-- **Scaling**: Add nodes by updating `.chezmoi.yaml.tmpl` and redeploying
+- **Scaling**: Add nodes by updating `/root/nodes.yaml` and redeploying
