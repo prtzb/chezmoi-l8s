@@ -182,10 +182,16 @@ network:
 
 ```bash
 # Generate with
-sudo mkdir -p /var/lib/rancher/k3s/server && sudo openssl rand -hex 32 | sudo tee /var/lib/rancher/k3s/token
+mkdir -p /var/lib/rancher/k3s/server && openssl rand -hex 32 | tee /var/lib/rancher/k3s/server/token
 ```
 
 # chezmoi
+
+```bash
+# Install with:
+sh -c "$(curl -fsLS get.chezmoi.io)"
+```
+
 
 ```bash
 # Init with:

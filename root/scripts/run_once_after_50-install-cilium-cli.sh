@@ -1,17 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-# Source node configuration
 source /etc/rancher/k3s/node_vars.env
 
-# Install Cilium CLI and configure CNI on this node
 echo "Installing Cilium CLI and configuring CNI..."
 
-# Check if cilium CLI is already installed
 if ! command -v cilium &> /dev/null; then
     echo "Installing Cilium CLI..."
 
-    # Detect architecture
     ARCH=$(uname -m)
     case $ARCH in
         x86_64) CLI_ARCH=amd64;;
@@ -20,36 +16,30 @@ if ! command -v cilium &> /dev/null; then
         *) echo "Unsupported architecture: $ARCH"; exit 1;;
     esac
 
-    # Get latest Cilium CLI version
     CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
 
-    # Download and install Cilium CLI
     CLI_URL="https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz"
     echo "Downloading Cilium CLI ${CILIUM_CLI_VERSION} for ${CLI_ARCH}..."
 
     curl -L --fail --remote-name-all ${CLI_URL}{,.sha256sum}
     sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
-    sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+    tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
     rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 
-    # Verify installation
     cilium version --client
     echo "Cilium CLI installed successfully on $HOSTNAME"
 else
     echo "Cilium CLI already installed"
 fi
 
-# Only install Cilium CNI on the bootstrap node
 if [[ "$IS_BOOTSTRAP" == "true" ]]; then
 
-    # Check if Cilium is already installed
     if kubectl get daemonset -n kube-system cilium >/dev/null 2>&1; then
         echo "Cilium already installed, checking status..."
         cilium status --wait
     else
         echo "Installing Cilium..."
 
-        # Install Cilium with custom configuration
         cilium install \
             --set cluster.name="$CLUSTER_NAME" \
             --set cluster.id=1 \
@@ -73,7 +63,6 @@ if [[ "$IS_BOOTSTRAP" == "true" ]]; then
         echo "Cilium installation completed"
     fi
 
-    # Wait for Cilium to be ready
     echo "Waiting for Cilium to be ready..."
     cilium status --wait
 
@@ -108,7 +97,6 @@ EOF
     echo "Cilium installation and configuration completed successfully"
     echo "Cluster networking is now ready"
 
-    # Display final status
     echo "Cilium status:"
     cilium status
 
