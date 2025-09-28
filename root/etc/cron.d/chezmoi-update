@@ -1,0 +1,2 @@
+# Update chezmoi configuration every 5 minutes
+*/5 * * * * root /usr/local/bin/chezmoi update --force 2>&1 | logger -t chezmoi-update
