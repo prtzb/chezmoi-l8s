@@ -1,0 +1,57 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: longhorn
+  namespace: kube-system
+spec:
+  repo: https://charts.longhorn.io
+  chart: longhorn
+  targetNamespace: longhorn-system
+  createNamespace: true
+  valuesContent: |-
+    defaultSettings:
+      # Enable v2 data engine
+      v2DataEngine: true
+      v2DataEngineHugepageLimit: 2048
+
+      # Replica settings
+      defaultReplicaCount: 2
+      replicaAutoBalance: best-effort
+
+      # Storage configuration
+      storageOverProvisioningPercentage: 200
+      storageMinimalAvailablePercentage: 10
+
+      # Network settings
+      guaranteedInstanceManagerCPU: 12
+
+    # Manager and UI run on control plane nodes
+    longhornManager:
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: "true"
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+
+    longhornDriver:
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: "true"
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+
+    longhornUI:
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: "true"
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+
+    # Storage components run only on worker nodes with NVMe
+    global:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"

@@ -1,0 +1,14 @@
+/var/log/keepalived.log {
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    su root syslog
+    create 0640 root adm
+    sharedscripts
+    postrotate
+        /usr/bin/systemctl reload rsyslog > /dev/null 2>&1 || true
+    endscript
+}

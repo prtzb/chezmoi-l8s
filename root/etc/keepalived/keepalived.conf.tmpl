@@ -6,8 +6,9 @@ global_defs {
 }
 
 vrrp_script chk_haproxy {
-    script "/bin/curl -f http://localhost:8404/stats || exit 1"
-    interval 2
+    script "/usr/bin/timeout 3 /bin/curl -f http://localhost:8404/stats"
+    interval 5
+    timeout 4
     weight -2
     fall 3
     rise 2

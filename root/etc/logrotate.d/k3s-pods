@@ -1,0 +1,23 @@
+/var/log/pods/*/*.log {
+    daily
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    su root root
+    nocreate
+    maxsize 100M
+}
+
+/var/log/containers/*.log {
+    daily
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    su root root
+    nocreate
+    maxsize 100M
+}
