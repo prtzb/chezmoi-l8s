@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: longhorn-test
+  namespace: default
+  labels:
+    app: longhorn-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: longhorn-test
+  template:
+    metadata:
+      labels:
+        app: longhorn-test
+    spec:
+      containers:
+      - name: test-container
+        image: busybox:latest
+        command:
+          - sh
+          - -c
+          - |
+            echo "Longhorn PVC test started at $(date)" > /data/test.txt
+            echo "Writing test data..."
+            for i in $(seq 1 10); do
+              echo "Test line $i at $(date)" >> /data/test.txt
+              sleep 2
+            done
+            echo "Test data written successfully!"
+            cat /data/test.txt
+            echo "Keeping container alive..."
+            tail -f /dev/null
+        volumeMounts:
+        - name: test-volume
+          mountPath: /data
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+      volumes:
+      - name: test-volume
+        persistentVolumeClaim:
+          claimName: longhorn-test-pvc
+      nodeSelector:
+        l8s.linnaeus.dev/storage: nvme

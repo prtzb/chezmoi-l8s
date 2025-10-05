@@ -53,6 +53,10 @@ kube-controller-manager-arg:
 kube-scheduler-arg:
   - "bind-address=0.0.0.0"
 
+# Node labels for Longhorn configuration
+node-label:
+  - "node.longhorn.io/create-default-disk=config"
+
 # CNI configuration (Cilium will be installed via CLI)
 flannel-backend: none
 disable-network-policy: true
@@ -75,6 +79,7 @@ kubelet-arg:
 node-label:
   - "node.kubernetes.io/instance-type=raspberry-pi-5"
   - "l8s.linnaeus.dev/storage=nvme"
+  - "node.longhorn.io/create-default-disk=config"
 
 # Node taints (if needed for specialized workloads)
 # node-taint:

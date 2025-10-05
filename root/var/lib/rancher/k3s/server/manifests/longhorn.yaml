@@ -13,28 +13,34 @@ spec:
     defaultSettings:
       # Enable v2 data engine
       v2DataEngine: true
-      v2DataEngineHugepageLimit: 2048
+      v2DataEngineHugepageLimit: "2048"
 
       # Replica settings
-      defaultReplicaCount: 2
+      defaultReplicaCount: "2"
       replicaAutoBalance: best-effort
 
       # Storage configuration
-      storageOverProvisioningPercentage: 200
-      storageMinimalAvailablePercentage: 10
+      storageOverProvisioningPercentage: "200"
+      storageMinimalAvailablePercentage: "10"
 
       # Network settings
-      guaranteedInstanceManagerCPU: 12
+      guaranteedInstanceManagerCPU: "12"
 
-    # Manager and UI run on control plane nodes
+      # Enable node label-based disk configuration
+      # This allows per-node control of allowScheduling via node annotations
+      createDefaultDiskLabeledNodes: true
+
+      # Storage components only run on workers with NVMe
+      systemManagedComponentsNodeSelector: "l8s.linnaeus.dev/storage:nvme"
+
+    # Manager must run on ALL nodes to discover and manage them
     longhornManager:
-      nodeSelector:
-        node-role.kubernetes.io/control-plane: "true"
       tolerations:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
           effect: NoSchedule
 
+    # Driver deployer on control plane
     longhornDriver:
       nodeSelector:
         node-role.kubernetes.io/control-plane: "true"
@@ -43,6 +49,7 @@ spec:
           operator: Exists
           effect: NoSchedule
 
+    # UI on control plane for easier access
     longhornUI:
       nodeSelector:
         node-role.kubernetes.io/control-plane: "true"
@@ -50,8 +57,3 @@ spec:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
           effect: NoSchedule
-
-    # Storage components run only on worker nodes with NVMe
-    global:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
