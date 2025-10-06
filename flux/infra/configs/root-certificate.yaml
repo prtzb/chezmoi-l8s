@@ -1,0 +1,24 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cert-manager-ca
+  namespace: cert-manager
+spec:
+  subject:
+    organizations:
+      - l8s-ca-prod
+  dnsNames:
+    - l8s-ca-prod
+  # commonName is required for trust to work in iOS!
+  commonName: l8s-ca-prod
+  duration: 87600h
+  isCA: true
+  secretName: root-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: cert-manager-clusterissuer-ca
+    kind: ClusterIssuer
+    group: cert-manager.io

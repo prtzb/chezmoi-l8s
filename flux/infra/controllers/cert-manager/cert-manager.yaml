@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: cert-manager-helm-repository
+  namespace: cert-manager
+spec:
+  interval: 5m0s
+  url: https://charts.jetstack.io
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  interval: 5m
+  install:
+    remediation:
+      retries: 3
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  chart:
+    spec:
+      chart: cert-manager
+      version: ^1.18.2
+      sourceRef:
+        kind: HelmRepository
+        name: cert-manager-helm-repository
+      interval: 1m
+  values:
+    namespace: cert-manager
+    installCRDs: true
