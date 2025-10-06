@@ -18,18 +18,7 @@ Unattended-Upgrade::Allowed-Origins {
 };
 
 // Python regular expressions, matching packages to exclude from upgrading
-// Blacklist kernel packages to avoid conflicts with kured
 Unattended-Upgrade::Package-Blacklist {
-    // Kernel packages - let kured handle kernel updates and reboots
-    "linux-.*";
-    "linux-image-.*";
-    "linux-headers-.*";
-    "linux-modules-.*";
-    "linux-tools-.*";
-    "linux-cloud-tools-.*";
-    "linux-buildinfo-.*";
-    "linux-source-.*";
-
     // Use $ to explicitely define the end of a package name. Without
     // the $, "libc6" would match all of them.
 //  "libc6$";
@@ -88,8 +77,7 @@ Unattended-Upgrade::InstallOnShutdown "false";
 
 // Remove unused automatically installed kernel-related packages
 // (kernel images, kernel headers and kernel version locked tools).
-// Disabled to avoid conflicts with kured kernel management
-Unattended-Upgrade::Remove-Unused-Kernel-Packages "false";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
 
 // Do automatic removal of newly unused dependencies after the upgrade
 Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
