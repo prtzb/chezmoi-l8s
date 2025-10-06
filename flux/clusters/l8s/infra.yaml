@@ -40,7 +40,7 @@ metadata:
 spec:
   dependsOn:
     - name: controllers
-  interval: 1h
+  interval: 10m0s
   retryInterval: 1m
   timeout: 5m
   sourceRef:

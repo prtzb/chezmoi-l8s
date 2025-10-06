@@ -27,7 +27,7 @@ Defined in [infra/namespaces/namespaces.yaml](infra/namespaces/namespaces.yaml):
 - `secrets` - Secret management
 - `cert-manager` - Certificate management
 - `reflector` - Secret/ConfigMap reflection across namespaces
-- `ingress-nginx` - Ingress controller (defined but not yet deployed)
+- `ingress-nginx` - Ingress controller
 - `tailscale` - VPN/networking (defined but not yet deployed)
 
 ### Controllers (Helm-based)
