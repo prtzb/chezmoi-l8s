@@ -1,0 +1,39 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: pihole
+  namespace: pihole
+spec:
+  install:
+    remediation:
+      retries: 3
+  interval: 5m
+  chart:
+    spec:
+      chart: pihole
+      version: ^2.34.0
+      sourceRef:
+        kind: HelmRepository
+        name: pihole-helm-repository
+      interval: 1m
+  values:
+    serviceDhcp:
+      enabled: false
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: cert-manager-clusterissuer
+      hosts:
+        - pihole.l8s.linnaeus.dev
+      tls:
+        - secretName: pihole-tls
+          hosts:
+          - pihole.l8s.linnaeus.dev
+    virtualHost: "pihole.l8s.linnaeus.dev"
+    serviceDns:
+      type: LoadBalancer
+      loadBalancerClass: io.cilium/l2-announcer
+      loadBalancerIP: 10.0.1.201
+    admin:
+      existingSecret: pihole-admin-secret
