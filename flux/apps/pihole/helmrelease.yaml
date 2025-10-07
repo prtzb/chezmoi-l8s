@@ -35,5 +35,7 @@ spec:
       type: LoadBalancer
       loadBalancerClass: io.cilium/l2-announcer
       loadBalancerIP: 10.0.1.201
+      annotations:
+        "lbipam.cilium.io/sharing-key": "1234"
     admin:
       existingSecret: pihole-admin-secret
