@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - kured
   - sonos-anti-abuse
+  - pihole
