@@ -21,15 +21,7 @@ spec:
     serviceDhcp:
       enabled: false
     ingress:
-      enabled: true
-      annotations:
-        cert-manager.io/cluster-issuer: cert-manager-clusterissuer
-      hosts:
-        - pihole.l8s.linnaeus.dev
-      tls:
-        - secretName: pihole-tls
-          hosts:
-          - pihole.l8s.linnaeus.dev
+      enabled: false
     virtualHost: "pihole.l8s.linnaeus.dev"
     serviceDns:
       type: LoadBalancer
