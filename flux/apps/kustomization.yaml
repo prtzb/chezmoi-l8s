@@ -5,3 +5,4 @@ resources:
   - kured
   - sonos-anti-abuse
   - pihole
+  - vaultwarden
