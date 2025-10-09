@@ -38,6 +38,7 @@ spec:
         name: vaultwarden-helm-repository
       interval: 1m
   values:
+    domain: https://vaultwarden.taile77d89.ts.net
     adminToken:
       existingSecret: vault-admin-secret
       existingSecretKey: ADMIN_TOKEN
