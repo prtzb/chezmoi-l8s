@@ -84,9 +84,12 @@ spec:
   filer:
     replicas: 2
 
-    # Enable S3 API with embedded IAM
+    # Enable S3 API with embedded IAM and credential config
     s3:
       enabled: true
+      configSecret:
+        name: seaweedfs-s3-config
+        key: seaweedfs_s3_config.json
     iam: true  # Embedded IAM for S3 authentication
 
     # Filer metadata storage configuration (leveldb2 for single filer)
