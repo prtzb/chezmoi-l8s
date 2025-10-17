@@ -33,10 +33,21 @@ spec:
         passwordKey: password
     internalDatabase:
       enabled: false
+    externalDatabase:
+      enabled: true
+      type: mysql
+      host: nextcloud-mariadb
+      user: nextcloud
+      database: nextcloud
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-mariadb-secret
+        passwordKey: password
+        userKey: username
     mariadb:
       enabled: true
       auth:
-        existingSecret: nextcloud-mariadb-secret
+        existingSecret: nextcloud-mariadb-secret-root
       primary:
         persistence:
           enabled: true
