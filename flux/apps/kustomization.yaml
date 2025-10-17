@@ -6,3 +6,4 @@ resources:
   - sonos-anti-abuse
   - pihole
   - vaultwarden
+  - nextcloud
