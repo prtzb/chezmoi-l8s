@@ -9,7 +9,7 @@ spec:
     service:
       name: nextcloud
       port:
-        number: 80
+        number: 8080
   ingressClassName: tailscale
   tls:
     - hosts:
