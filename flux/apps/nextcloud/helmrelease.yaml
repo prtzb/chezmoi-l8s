@@ -37,12 +37,12 @@ spec:
       enabled: true
       type: mysql
       host: nextcloud-mariadb
-      user: nextcloud
       database: nextcloud
       existingSecret:
         enabled: true
         secretName: nextcloud-mariadb-secret-root
         passwordKey: mariadb-password
+        usernameKey: mariadb-user
     mariadb:
       enabled: true
       auth:
