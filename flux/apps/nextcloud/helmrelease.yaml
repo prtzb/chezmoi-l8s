@@ -41,12 +41,13 @@ spec:
       database: nextcloud
       existingSecret:
         enabled: true
-        secretName: nextcloud-mariadb-secret
-        passwordKey: password
-        usernameKey: username
+        secretName: nextcloud-mariadb-secret-root
+        passwordKey: mariadb-password
     mariadb:
       enabled: true
       auth:
+        database: nextcloud
+        username: nextcloud
         existingSecret: nextcloud-mariadb-secret-root
       primary:
         persistence:
