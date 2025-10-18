@@ -43,7 +43,7 @@ spec:
         enabled: true
         secretName: nextcloud-mariadb-secret
         passwordKey: password
-        userKey: username
+        usernameKey: username
     mariadb:
       enabled: true
       auth:
