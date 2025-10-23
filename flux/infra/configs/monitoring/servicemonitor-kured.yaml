@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: kured
+  namespace: kured
+  labels:
+    app.kubernetes.io/name: kured
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kured
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics

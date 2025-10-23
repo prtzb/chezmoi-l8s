@@ -5,5 +5,7 @@ resources:
   - kured
   - sonos-anti-abuse
   - pihole
+  - pihole-exporter
   - vaultwarden
   - nextcloud
+  - nextcloud-exporter

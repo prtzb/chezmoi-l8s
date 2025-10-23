@@ -1,0 +1,162 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: k3s-homelab-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack
+spec:
+  groups:
+    - name: certificates
+      interval: 30s
+      rules:
+        - alert: CertificateExpiringSoon
+          expr: certmanager_certificate_expiration_timestamp_seconds - time() < 604800
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.name }} expiring soon"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} expires in less than 7 days"
+
+        - alert: CertificateExpiringCritical
+          expr: certmanager_certificate_expiration_timestamp_seconds - time() < 172800
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.name }} expiring very soon"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} expires in less than 2 days"
+
+        - alert: CertificateRenewalFailed
+          expr: certmanager_certificate_ready_status{condition="False"} == 1
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.name }} renewal failed"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} failed to renew"
+
+    - name: storage
+      interval: 30s
+      rules:
+        - alert: LonghornVolumeNotHealthy
+          expr: longhorn_volume_robustness != 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} is unhealthy"
+            description: "Longhorn volume {{ $labels.volume }} has robustness status {{ $labels.robustness }}"
+
+        - alert: LonghornVolumeDegraded
+          expr: longhorn_volume_robustness == 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn volume {{ $labels.volume }} is degraded"
+            description: "Longhorn volume {{ $labels.volume }} is running in degraded mode"
+
+        - alert: PersistentVolumeFillingUp
+          expr: (kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PersistentVolume {{ $labels.persistentvolumeclaim }} is filling up"
+            description: "PersistentVolume {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} is {{ $value }}% full"
+
+        - alert: PersistentVolumeAlmostFull
+          expr: (kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * 100 > 95
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PersistentVolume {{ $labels.persistentvolumeclaim }} almost full"
+            description: "PersistentVolume {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} is {{ $value }}% full"
+
+    - name: node-management
+      interval: 30s
+      rules:
+        - alert: NodeRebootPending
+          expr: kured_reboot_required == 1
+          for: 24h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.node }} requires reboot"
+            description: "Node {{ $labels.node }} has been pending reboot for more than 24 hours"
+
+    - name: pods
+      interval: 30s
+      rules:
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping"
+            description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} has restarted {{ $value }} times in the last 15 minutes"
+
+        - alert: PodNotReady
+          expr: kube_pod_status_phase{phase!="Running",phase!="Succeeded"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} not ready"
+            description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} has been in {{ $labels.phase }} state for more than 15 minutes"
+
+    - name: node-resources
+      interval: 30s
+      rules:
+        - alert: NodeHighMemoryUsage
+          expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} high memory usage"
+            description: "Node {{ $labels.instance }} memory usage is {{ $value }}%"
+
+        - alert: NodeHighCPUUsage
+          expr: (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} high CPU usage"
+            description: "Node {{ $labels.instance }} CPU usage is {{ $value }}%"
+
+        - alert: NodeHighDiskUsage
+          expr: (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} high disk usage"
+            description: "Node {{ $labels.instance }} root filesystem is {{ $value }}% full"
+
+    - name: applications
+      interval: 30s
+      rules:
+        - alert: NextcloudDown
+          expr: up{job="nextcloud-exporter"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Nextcloud is down"
+            description: "Nextcloud exporter has been down for more than 5 minutes"
+
+        - alert: PiHoleDown
+          expr: up{job="pihole-exporter"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Pi-hole is down"
+            description: "Pi-hole exporter has been down for more than 5 minutes"

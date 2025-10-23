@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: nextcloud-exporter
+  namespace: nextcloud
+  labels:
+    app: nextcloud-exporter
+spec:
+  selector:
+    matchLabels:
+      app: nextcloud-exporter
+  endpoints:
+    - port: metrics
+      interval: 60s
+      path: /metrics

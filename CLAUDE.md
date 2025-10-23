@@ -30,6 +30,7 @@ This is a **chezmoi-based configuration management repository** for deploying an
 - **[Longhorn](https://longhorn.io/)**: Distributed block storage with v2 data engine
 - **[cert-manager](https://cert-manager.io/)**: Automated TLS certificate management
 - **[ingress-nginx](https://kubernetes.github.io/ingress-nginx/)**: Ingress controller
+- **[Tailscale Operator](https://tailscale.com/kb)**: For exposing services securely.
 - **HAProxy**: Load balancer for API server HA
 - **keepalived**: Virtual IP management and failover
 - **SOPS + Age**: Secret encryption for GitOps

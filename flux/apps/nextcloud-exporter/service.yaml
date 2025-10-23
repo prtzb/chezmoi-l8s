@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud-exporter
+  namespace: nextcloud
+  labels:
+    app: nextcloud-exporter
+spec:
+  type: ClusterIP
+  ports:
+    - name: metrics
+      port: 9205
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    app: nextcloud-exporter
