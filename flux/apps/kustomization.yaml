@@ -8,4 +8,4 @@ resources:
   - pihole-exporter
   - vaultwarden
   - nextcloud
-  - nextcloud-exporter
+  #- nextcloud-exporter
