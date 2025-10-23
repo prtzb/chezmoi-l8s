@@ -25,7 +25,7 @@ spec:
               protocol: TCP
           env:
             - name: NEXTCLOUD_SERVER
-              value: "https://nextcloud.taile77d89.ts.net"
+              value: "nextcloud.nextcloud.svc.cluster.local"
             - name: NEXTCLOUD_USERNAME
               valueFrom:
                 secretKeyRef:
