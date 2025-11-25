@@ -12,7 +12,8 @@ Unattended-Upgrade::Allowed-Origins {
 	// should also install from here by default.
 	"${distro_id}ESMApps:${distro_codename}-apps-security";
 	"${distro_id}ESM:${distro_codename}-infra-security";
-//	"${distro_id}:${distro_codename}-updates";
+	// Enable -updates for kernel and other important updates
+	"${distro_id}:${distro_codename}-updates";
 //	"${distro_id}:${distro_codename}-proposed";
 //	"${distro_id}:${distro_codename}-backports";
 };
