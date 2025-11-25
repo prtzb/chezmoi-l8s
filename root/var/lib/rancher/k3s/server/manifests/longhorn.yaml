@@ -35,6 +35,7 @@ spec:
 
     # Manager must run on ALL nodes to discover and manage them
     longhornManager:
+      nodeSelector: {}
       tolerations:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
