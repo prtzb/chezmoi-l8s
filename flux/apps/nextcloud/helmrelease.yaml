@@ -33,6 +33,7 @@ spec:
       #       'overwrite.cli.url' => 'https://nextcloud.taile77d89.ts.net',
       #       'overwriteprotocol' => 'https',
       #     );
+      configs: {}
       host: nextcloud.taile77d89.ts.net
       existingSecret:
         enabled: true
