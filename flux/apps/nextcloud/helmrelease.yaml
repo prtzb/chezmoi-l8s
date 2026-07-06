@@ -20,12 +20,12 @@ spec:
   values:
     ingress:
       enabled: false
+    phpClientHttpsFix:
+      enabled: true
+      protocol: https
     nextcloud:
       trustedDomains:
         - nextcloud.taile77d89.ts.net
-      phpClientHttpsFix:
-        enabled: true
-        protocol: https
       # configs:
       #   custom.config.php: |
       #     <?php
