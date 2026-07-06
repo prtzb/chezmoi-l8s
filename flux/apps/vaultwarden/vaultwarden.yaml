@@ -52,6 +52,7 @@ spec:
       data:
         name: "vaultwarden-data"
         size: "1Gi"
+        accessMode: "ReadWriteOnce"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
