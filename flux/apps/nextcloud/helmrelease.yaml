@@ -21,13 +21,18 @@ spec:
     ingress:
       enabled: false
     nextcloud:
-      configs:
-        custom.config.php: |
-          <?php
-          $CONFIG = array (
-            'overwrite.cli.url' => 'https://nextcloud.taile77d89.ts.net',
-            'overwriteprotocol' => 'https',
-          );
+      trustedDomains:
+        - nextcloud.taile77d89.ts.net
+      phpClientHttpsFix:
+        enabled: true
+        protocol: https
+      # configs:
+      #   custom.config.php: |
+      #     <?php
+      #     $CONFIG = array (
+      #       'overwrite.cli.url' => 'https://nextcloud.taile77d89.ts.net',
+      #       'overwriteprotocol' => 'https',
+      #     );
       host: nextcloud.taile77d89.ts.net
       existingSecret:
         enabled: true
